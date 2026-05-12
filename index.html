@@ -18,20 +18,28 @@
     .app { width: 100%; max-width: 480px; }
     .header { text-align: center; padding: 1rem 0; }
     .card { background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    
+    /* Estilo para el nombre */
+    .name-input { width: 100%; padding: 12px; border-radius: 10px; border: 1.5px solid #eee; margin-top: 10px; font-family: 'Nunito'; font-size: 16px; text-align: center; outline: none; }
+    .name-input:focus { border-color: var(--pink); }
+
     .table-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
     .table-btn { aspect-ratio: 1; border-radius: 10px; border: 1.5px solid #eee; background: white; font-size: 18px; font-weight: 700; cursor: pointer; }
     .table-btn.active { background: var(--pink); color: white; border-color: var(--pink); }
+    
     .start-btn { width: 100%; padding: 16px; border-radius: 16px; border: none; background: var(--pink); color: white; font-size: 18px; font-weight: 800; cursor: pointer; }
     .start-btn:disabled { opacity: 0.5; }
+    
     .question-card { background: var(--pink); color: white; border-radius: 16px; padding: 2rem 1rem; text-align: center; margin-bottom: 1rem; }
     .question-text { font-size: 42px; font-weight: 800; }
     .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .opt-btn { padding: 16px; border-radius: 12px; border: 1.5px solid #eee; background: white; font-size: 22px; font-weight: 800; cursor: pointer; }
     .opt-btn.correct { background: var(--green-light); border-color: var(--green); color: var(--green); }
     .opt-btn.wrong { background: var(--red-light); border-color: var(--red); color: var(--red); }
+    
     .next-btn { width: 100%; padding: 15px; border-radius: 16px; border: none; background: var(--pink); color: white; font-size: 18px; font-weight: 800; cursor: pointer; display: none; margin-top: 10px; }
     .hidden { display: none !important; }
-    .feedback { text-align: center; margin: 10px 0; font-weight: 700; height: 30px; }
+    .feedback { text-align: center; margin: 10px 0; font-weight: 700; min-height: 40px; line-height: 1.2; }
     .stars { font-size: 24px; text-align: center; color: #FFB800; margin-bottom: 10px; }
   </style>
 </head>
@@ -41,7 +49,11 @@
   <div id="setup-screen">
     <div class="header"><h1>🧮 Aprende las Tablas</h1></div>
     <div class="card">
-      <p>Selecciona una tabla:</p>
+      <p><b>¿Cómo te llamas?</b></p>
+      <input type="text" id="user-name" class="name-input" placeholder="Escribe tu nombre aquí...">
+    </div>
+    <div class="card">
+      <p><b>Selecciona una tabla:</b></p>
       <div class="table-grid" id="table-btns"></div>
     </div>
     <button class="start-btn" id="start-btn" onclick="startGame()" disabled>¡Empezar!</button>
@@ -60,7 +72,7 @@
 
   <div id="end-screen" class="hidden">
     <div class="card" style="text-align: center;">
-      <h2>🏆 ¡Terminaste!</h2>
+      <h2 id="end-title">🏆 ¡Terminaste!</h2>
       <p id="final-score" style="font-size: 24px; margin: 1rem 0;"></p>
       <button class="start-btn" onclick="location.reload()">Jugar de nuevo</button>
     </div>
@@ -68,11 +80,11 @@
 </div>
 
 <script>
-  let selectedTable = null, cur = 0, correct = 0;
-  const TOTAL = 10, GOOD = ["¡Genial!", "¡Muy bien!", "¡Eso es!", "¡Perfecto!"], BAD = ["¡Casi!", "¡Tú puedes!", "¡Sigue intentando!"];
+  let selectedTable = null, cur = 0, correct = 0, playerName = "";
+  const TOTAL = 10;
   let questions = [];
 
-  // Crear botones
+  // Crear botones de tablas
   for (let i = 1; i <= 10; i++) {
     const b = document.createElement('button');
     b.className = 'table-btn'; b.textContent = i;
@@ -85,6 +97,7 @@
   }
 
   function startGame() {
+    playerName = document.getElementById('user-name').value.trim() || "Campeón";
     let nums = [1,2,3,4,5,6,7,8,9,10].sort(() => Math.random() - 0.5);
     questions = nums.map(n => ({ a: selectedTable, b: n, ans: selectedTable * n }));
     cur = 0; correct = 0;
@@ -101,7 +114,6 @@
     document.getElementById('feedback').textContent = '';
     document.getElementById('next-btn').style.display = 'none';
 
-    // Generar opciones
     let opts = [q.ans];
     while(opts.length < 4) {
       let r = q.ans + (Math.floor(Math.random() * 10) - 5);
@@ -121,13 +133,18 @@
 
   function check(val, ans, btn) {
     document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+    
+    const feedbackEl = document.getElementById('feedback');
+    
     if (val === ans) {
       correct++;
       btn.classList.add('correct');
-      document.getElementById('feedback').textContent = GOOD[Math.floor(Math.random()*GOOD.length)];
+      const goods = [`¡Genial, ${playerName}!`, `¡Muy bien, ${playerName}!`, `¡Eso es, ${playerName}!`, `¡Perfecto!`];
+      feedbackEl.innerHTML = `<span style="color:var(--green)">${goods[Math.floor(Math.random()*goods.length)]}</span>`;
     } else {
       btn.classList.add('wrong');
-      document.getElementById('feedback').textContent = BAD[Math.floor(Math.random()*BAD.length)];
+      const bads = [`¡Casi, ${playerName}!`, `¡Tú puedes!`, `¡No te rindas!`];
+      feedbackEl.innerHTML = `<span style="color:var(--red)">${bads[Math.floor(Math.random()*bads.length)]}</span><br><small>La respuesta era ${ans}</small>`;
       document.querySelectorAll('.opt-btn').forEach(b => { if(+b.textContent === ans) b.classList.add('correct'); });
     }
     document.getElementById('next-btn').style.display = 'block';
@@ -144,7 +161,8 @@
   function showEnd() {
     document.getElementById('game-screen').classList.add('hidden');
     document.getElementById('end-screen').classList.remove('hidden');
-    document.getElementById('final-score').textContent = `Lograste ${correct} de ${TOTAL} correctas`;
+    document.getElementById('end-title').textContent = `🏆 ¡Lo lograste, ${playerName}!`;
+    document.getElementById('final-score').textContent = `Tu puntuación: ${correct} de ${TOTAL} correctas`;
   }
 </script>
 
