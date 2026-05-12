@@ -300,122 +300,107 @@ function showQ() {
   if (cur >= TOTAL) { endGame(); return; }
   const q = questions[cur];
   
-  // Actualización de textos básicos
+  // 1. Limpiar pantalla para la nueva pregunta
   document.getElementById('question-text').textContent = q.a + ' × ' + q.b + ' = ?';
   document.getElementById('q-num').textContent = (cur + 1) + '/' + TOTAL;
   document.getElementById('q-label').textContent = 'Pregunta ' + (cur + 1) + ' de ' + TOTAL;
   document.getElementById('progress-fill').style.width = ((cur / TOTAL) * 100) + '%';
   document.getElementById('feedback').innerHTML = '';
-  
-  // IMPORTANTE: Asegurarnos de que el botón esté oculto al iniciar la pregunta
-  const nextBtn = document.getElementById('next-btn');
-  nextBtn.style.display = 'none';
-  
+  document.getElementById('next-btn').style.display = 'none'; // Ocultar botón siempre al inicio
   updateStars();
 
   const area = document.getElementById('options-area');
+  
   if (level === 'easy') {
+    // Generar opciones incorrectas sin números negativos
     const wrongs = [];
     while (wrongs.length < 3) {
-      let offset = Math.floor(Math.random() * 10) + 1;
-      let v = Math.random() > 0.5 ? q.ans + offset : q.ans - offset;
-      if (v > 0 && v !== q.ans && !wrongs.includes(v)) {
-        wrongs.push(v);
-      }
+      let offset = Math.floor(Math.random() * 8) + 1;
+      let v = (q.ans > 8 && Math.random() > 0.5) ? q.ans - offset : q.ans + offset;
+      if (v > 0 && v !== q.ans && !wrongs.includes(v)) wrongs.push(v);
     }
     const opts = shuffle([q.ans].concat(wrongs));
+    
     let html = '<div class="options-grid">';
     opts.forEach(function(o) {
-      // Se agregó el parámetro 'ans' directamente para evitar errores de referencia
       html += '<button class="opt-btn" onclick="checkOpt(' + o + ',' + q.ans + ',this)">' + o + '</button>';
     });
     html += '</div>';
     area.innerHTML = html;
   } else {
-    // Modo difícil con limpieza de campo
+    // Modo Difícil: Input limpio y con teclado numérico
     area.innerHTML = '<div class="type-row">'
       + '<input class="type-input" type="number" id="ans-input" inputmode="numeric" placeholder="?" onkeydown="if(event.key===\'Enter\')checkTyped(' + q.ans + ')">'
       + '<button class="confirm-btn" id="confirm-btn" onclick="checkTyped(' + q.ans + ')">✓</button>'
       + '</div>';
     setTimeout(function() { 
       var el = document.getElementById('ans-input'); 
-      if (el) { el.focus(); }
+      if (el) { el.value = ""; el.focus(); }
     }, 100);
   }
 }
-  
-function checkTyped(ans) {
-  var el = document.getElementById('ans-input');
-  if (!el || !el.value.trim()) return; // No hace nada si está vacío
-  
-  var val = +el.value;
-  var ok = (val === ans);
-  
-  el.disabled = true; // Bloqueamos el input
-  el.classList.add(ok ? 'correct' : 'wrong');
-  
-  var cb = document.getElementById('confirm-btn');
-  if (cb) cb.disabled = true; // Bloqueamos el botón de check
-  
-  // Llamamos a handle para mostrar el botón "Siguiente"
-  handle(ok, ok ? null : 'La respuesta era ' + ans);
-}
 
-// 2. Función para el modo FÁCIL (Botones)
 function checkOpt(val, ans, btn) {
-  // Bloqueamos todos los botones de opciones
-  document.querySelectorAll('.opt-btn').forEach(function(b) { 
-    b.disabled = true; 
-  });
+  // Deshabilitar todos los botones para evitar clics extra
+  const buttons = document.querySelectorAll('.opt-btn');
+  buttons.forEach(b => b.disabled = true);
   
-  const ok = (val === ans);
-  btn.classList.add(ok ? 'correct' : 'wrong');
+  const isCorrect = (val === ans);
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
   
-  if (!ok) {
-    // Si falló, marcamos la correcta en verde para que aprenda
-    document.querySelectorAll('.opt-btn').forEach(function(b) {
+  if (!isCorrect) {
+    buttons.forEach(b => {
       if (parseInt(b.textContent) === ans) b.classList.add('correct');
     });
   }
   
-  // Llamamos a handle para mostrar el botón "Siguiente"
-  handle(ok, ok ? null : 'La respuesta era ' + ans);
+  // Llamada obligatoria a handle
+  handle(isCorrect, isCorrect ? null : 'La respuesta era ' + ans);
+}
+
+function checkTyped(ans) {
+  const el = document.getElementById('ans-input');
+  const btn = document.getElementById('confirm-btn');
+  if (!el || !el.value.trim() || el.disabled) return;
+
+  const val = parseInt(el.value);
+  const isCorrect = (val === ans);
+
+  el.disabled = true;
+  if (btn) btn.disabled = true;
+  el.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  // Llamada obligatoria a handle
+  handle(isCorrect, isCorrect ? null : 'La respuesta era ' + ans);
 }
 
 function handle(ok, hint) {
+  // Actualizar puntos y racha
   if (ok) {
     streak++; correct++;
-    var pts = streak >= 3 ? 200 : 100;
+    let pts = streak >= 3 ? 200 : 100;
     score += pts;
     maxStreak = Math.max(maxStreak, streak);
-    var msg = GOOD[Math.floor(Math.random() * GOOD.length)];
+    let msg = GOOD[Math.floor(Math.random() * GOOD.length)];
     document.getElementById('feedback').innerHTML = '<span class="feedback-txt good">' + msg + '</span>';
-    if (streak >= 3) {
-      document.getElementById('streak-area').innerHTML = '<span class="streak-badge">🔥 Racha de ' + streak + '</span>';
-    }
   } else {
     streak = 0;
-    var msg2 = BAD[Math.floor(Math.random() * BAD.length)];
-    var h = hint ? '<span class="feedback-hint">' + hint + '</span>' : '';
+    let msg2 = BAD[Math.floor(Math.random() * BAD.length)];
+    let h = hint ? '<span class="feedback-hint">' + hint + '</span>' : '';
     document.getElementById('feedback').innerHTML = '<span class="feedback-txt bad">' + msg2 + '</span>' + h;
-    document.getElementById('streak-area').innerHTML = '';
   }
   
+  // Actualizar UI de puntos
   document.getElementById('score-num').textContent = score;
   document.getElementById('correct-num').textContent = correct;
+  document.getElementById('streak-area').innerHTML = streak >= 3 ? '<span class="streak-badge">🔥 Racha de ' + streak + '</span>' : '';
   updateStars();
 
-  // LA PARTE CRÍTICA: Mostrar el botón Siguiente
-  var nextBtn = document.getElementById('next-btn');
+  // MOSTRAR EL BOTÓN (Forzado)
+  const nextBtn = document.getElementById('next-btn');
   nextBtn.textContent = (cur + 1 >= TOTAL) ? 'Ver resultados →' : 'Siguiente →';
-  
-  // Usamos un pequeño retraso para asegurar que el navegador renderice el cambio
-  setTimeout(function() {
-    nextBtn.style.setProperty('display', 'block', 'important');
-    nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 50);
+  nextBtn.style.display = 'block'; // Usamos block directo para evitar fallos de CSS
 }
-
 function nextQuestion() {
   document.getElementById('next-btn').style.display = 'none';
   cur++;
