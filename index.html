@@ -311,8 +311,13 @@ function showQ() {
   if (level === 'easy') {
     const wrongs = [];
     while (wrongs.length < 3) {
-      const v = q.ans + Math.floor(Math.random() * 14) - 7;
-      if (v !== q.ans && v > 0 && !wrongs.includes(v)) wrongs.push(v);
+      // Mejora: Evita números negativos y genera opciones más realistas
+      let offset = Math.floor(Math.random() * 10) + 1;
+      let v = Math.random() > 0.5 ? q.ans + offset : q.ans - offset;
+      
+      if (v > 0 && v !== q.ans && !wrongs.includes(v)) {
+        wrongs.push(v);
+      }
     }
     const opts = shuffle([q.ans].concat(wrongs));
     let html = '<div class="options-grid">';
@@ -322,11 +327,18 @@ function showQ() {
     html += '</div>';
     area.innerHTML = html;
   } else {
+    // Mejora: Se añade inputmode para móviles y se asegura que esté limpio y habilitado
     area.innerHTML = '<div class="type-row">'
-      + '<input class="type-input" type="number" id="ans-input" placeholder="?" onkeydown="if(event.key===\'Enter\')checkTyped(' + q.ans + ')">'
+      + '<input class="type-input" type="number" id="ans-input" inputmode="numeric" placeholder="?" onkeydown="if(event.key===\'Enter\')checkTyped(' + q.ans + ')">'
       + '<button class="confirm-btn" id="confirm-btn" onclick="checkTyped(' + q.ans + ')">✓</button>'
       + '</div>';
-    setTimeout(function() { var el = document.getElementById('ans-input'); if (el) el.focus(); }, 60);
+    setTimeout(function() { 
+      var el = document.getElementById('ans-input'); 
+      if (el) {
+        el.value = ""; // Limpiar el input para la nueva pregunta
+        el.focus(); 
+      }
+    }, 60);
   }
 }
 
