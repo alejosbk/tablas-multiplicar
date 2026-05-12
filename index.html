@@ -343,16 +343,22 @@ function showQ() {
 }
 
 function checkOpt(val, ans, btn) {
+  // Deshabilitar todos los botones para que no sigan marcando
   document.querySelectorAll('.opt-btn').forEach(function(b) { b.disabled = true; });
+  
   btn.classList.add(val === ans ? 'correct' : 'wrong');
+  
   if (val !== ans) {
+    // Si se equivocó, mostramos cuál era la correcta pintándola de verde
     document.querySelectorAll('.opt-btn').forEach(function(b) {
       if (+b.textContent === ans) b.classList.add('correct');
     });
   }
-  handle(val === ans, null);
+  
+  // Llamamos a handle para procesar puntos y mostrar el botón "Siguiente"
+  handle(val === ans, val === ans ? null : 'La respuesta era ' + ans);
 }
-
+  
 function checkTyped(ans) {
   var el = document.getElementById('ans-input');
   if (!el || !el.value.trim()) return;
@@ -388,7 +394,7 @@ function handle(ok, hint) {
 
   var nextBtn = document.getElementById('next-btn');
   nextBtn.textContent = (cur + 1 >= TOTAL) ? 'Ver resultados →' : 'Siguiente →';
-  nextBtn.style.display = 'block';
+  nextBtn.style.setProperty('display', 'block', 'important');
 }
 
 function nextQuestion() {
