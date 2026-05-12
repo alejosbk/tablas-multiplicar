@@ -405,17 +405,15 @@ function handle(ok, hint) {
   document.getElementById('correct-num').textContent = correct;
   updateStars();
 
-  // 3. LA CORRECCIÓN CLAVE:
-  // Forzamos la aparición del botón Siguiente al final de toda la lógica
-  const nextBtn = document.getElementById('next-btn');
+  // LA PARTE CRÍTICA: Mostrar el botón Siguiente
+  var nextBtn = document.getElementById('next-btn');
   nextBtn.textContent = (cur + 1 >= TOTAL) ? 'Ver resultados →' : 'Siguiente →';
   
-  // Usamos un pequeño delay para asegurar que el DOM se haya actualizado
-  setTimeout(() => {
-    nextBtn.style.display = 'block';
-    // Auto-scroll para que el niño vea el botón en pantallas pequeñas
+  // Usamos un pequeño retraso para asegurar que el navegador renderice el cambio
+  setTimeout(function() {
+    nextBtn.style.setProperty('display', 'block', 'important');
     nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 100);
+  }, 50);
 }
 
 function nextQuestion() {
