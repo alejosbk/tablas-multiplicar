@@ -343,34 +343,42 @@ function showQ() {
     }, 100);
   }
 }
+  
+function checkTyped(ans) {
+  var el = document.getElementById('ans-input');
+  if (!el || !el.value.trim()) return; // No hace nada si está vacío
+  
+  var val = +el.value;
+  var ok = (val === ans);
+  
+  el.disabled = true; // Bloqueamos el input
+  el.classList.add(ok ? 'correct' : 'wrong');
+  
+  var cb = document.getElementById('confirm-btn');
+  if (cb) cb.disabled = true; // Bloqueamos el botón de check
+  
+  // Llamamos a handle para mostrar el botón "Siguiente"
+  handle(ok, ok ? null : 'La respuesta era ' + ans);
+}
 
+// 2. Función para el modo FÁCIL (Botones)
 function checkOpt(val, ans, btn) {
-  // 1. Bloquear todos los botones de una vez
-  const allBtns = document.querySelectorAll('.opt-btn');
-  allBtns.forEach(b => b.disabled = true);
+  // Bloqueamos todos los botones de opciones
+  document.querySelectorAll('.opt-btn').forEach(function(b) { 
+    b.disabled = true; 
+  });
   
   const ok = (val === ans);
   btn.classList.add(ok ? 'correct' : 'wrong');
   
   if (!ok) {
-    allBtns.forEach(b => {
+    // Si falló, marcamos la correcta en verde para que aprenda
+    document.querySelectorAll('.opt-btn').forEach(function(b) {
       if (parseInt(b.textContent) === ans) b.classList.add('correct');
     });
   }
   
-  // 2. Llamar a handle con el mensaje de ayuda si falló
-  handle(ok, ok ? null : 'La respuesta correcta era ' + ans);
-}
-  
-function checkTyped(ans) {
-  var el = document.getElementById('ans-input');
-  if (!el || !el.value.trim()) return;
-  var val = +el.value;
-  var ok = val === ans;
-  el.disabled = true;
-  el.classList.add(ok ? 'correct' : 'wrong');
-  var cb = document.getElementById('confirm-btn');
-  if (cb) cb.disabled = true;
+  // Llamamos a handle para mostrar el botón "Siguiente"
   handle(ok, ok ? null : 'La respuesta era ' + ans);
 }
 
