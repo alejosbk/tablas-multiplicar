@@ -299,63 +299,67 @@ function startGame() {
 function showQ() {
   if (cur >= TOTAL) { endGame(); return; }
   const q = questions[cur];
+  
+  // Actualización de textos básicos
   document.getElementById('question-text').textContent = q.a + ' × ' + q.b + ' = ?';
   document.getElementById('q-num').textContent = (cur + 1) + '/' + TOTAL;
   document.getElementById('q-label').textContent = 'Pregunta ' + (cur + 1) + ' de ' + TOTAL;
   document.getElementById('progress-fill').style.width = ((cur / TOTAL) * 100) + '%';
   document.getElementById('feedback').innerHTML = '';
-  document.getElementById('next-btn').style.display = 'none'; // Se oculta al empezar nueva pregunta
+  
+  // IMPORTANTE: Asegurarnos de que el botón esté oculto al iniciar la pregunta
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.style.display = 'none';
+  
   updateStars();
 
   const area = document.getElementById('options-area');
   if (level === 'easy') {
     const wrongs = [];
     while (wrongs.length < 3) {
-      // Evita negativos: si el resultado es pequeño, solo suma. Si es grande, suma o resta.
-      let offset = Math.floor(Math.random() * 5) + 1;
-      let v = (q.ans > 5 && Math.random() > 0.5) ? q.ans - offset : q.ans + offset;
-      
-      if (v > 0 && v !== q.ans && !wrongs.includes(v)) wrongs.push(v);
+      let offset = Math.floor(Math.random() * 10) + 1;
+      let v = Math.random() > 0.5 ? q.ans + offset : q.ans - offset;
+      if (v > 0 && v !== q.ans && !wrongs.includes(v)) {
+        wrongs.push(v);
+      }
     }
     const opts = shuffle([q.ans].concat(wrongs));
     let html = '<div class="options-grid">';
     opts.forEach(function(o) {
+      // Se agregó el parámetro 'ans' directamente para evitar errores de referencia
       html += '<button class="opt-btn" onclick="checkOpt(' + o + ',' + q.ans + ',this)">' + o + '</button>';
     });
     html += '</div>';
     area.innerHTML = html;
   } else {
-    // Mejora: Limpieza de input y habilitación automática
+    // Modo difícil con limpieza de campo
     area.innerHTML = '<div class="type-row">'
       + '<input class="type-input" type="number" id="ans-input" inputmode="numeric" placeholder="?" onkeydown="if(event.key===\'Enter\')checkTyped(' + q.ans + ')">'
       + '<button class="confirm-btn" id="confirm-btn" onclick="checkTyped(' + q.ans + ')">✓</button>'
       + '</div>';
     setTimeout(function() { 
       var el = document.getElementById('ans-input'); 
-      if (el) {
-        el.value = ""; // Asegura que esté vacío
-        el.focus(); 
-      }
-    }, 60);
+      if (el) { el.focus(); }
+    }, 100);
   }
 }
 
-// 2. Corrección del flujo en el modo fácil
 function checkOpt(val, ans, btn) {
-  // Deshabilitamos todos para evitar doble clic
-  document.querySelectorAll('.opt-btn').forEach(function(b) { b.disabled = true; });
+  // 1. Bloquear todos los botones de una vez
+  const allBtns = document.querySelectorAll('.opt-btn');
+  allBtns.forEach(b => b.disabled = true);
   
-  const isCorrect = val === ans;
-  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  const ok = (val === ans);
+  btn.classList.add(ok ? 'correct' : 'wrong');
   
-  if (!isCorrect) {
-    document.querySelectorAll('.opt-btn').forEach(function(b) {
-      if (+b.textContent === ans) b.classList.add('correct');
+  if (!ok) {
+    allBtns.forEach(b => {
+      if (parseInt(b.textContent) === ans) b.classList.add('correct');
     });
   }
   
-  // IMPORTANTE: Pasamos el mensaje correcto al handle
-  handle(isCorrect, isCorrect ? null : 'La respuesta era ' + ans);
+  // 2. Llamar a handle con el mensaje de ayuda si falló
+  handle(ok, ok ? null : 'La respuesta correcta era ' + ans);
 }
   
 function checkTyped(ans) {
@@ -378,7 +382,9 @@ function handle(ok, hint) {
     maxStreak = Math.max(maxStreak, streak);
     var msg = GOOD[Math.floor(Math.random() * GOOD.length)];
     document.getElementById('feedback').innerHTML = '<span class="feedback-txt good">' + msg + '</span>';
-    document.getElementById('streak-area').innerHTML = streak >= 3 ? '<span class="streak-badge">🔥 Racha de ' + streak + '</span>' : '';
+    if (streak >= 3) {
+      document.getElementById('streak-area').innerHTML = '<span class="streak-badge">🔥 Racha de ' + streak + '</span>';
+    }
   } else {
     streak = 0;
     var msg2 = BAD[Math.floor(Math.random() * BAD.length)];
@@ -391,10 +397,17 @@ function handle(ok, hint) {
   document.getElementById('correct-num').textContent = correct;
   updateStars();
 
-  // Esta línea es la que soluciona tu problema principal:
-  var nextBtn = document.getElementById('next-btn');
+  // 3. LA CORRECCIÓN CLAVE:
+  // Forzamos la aparición del botón Siguiente al final de toda la lógica
+  const nextBtn = document.getElementById('next-btn');
   nextBtn.textContent = (cur + 1 >= TOTAL) ? 'Ver resultados →' : 'Siguiente →';
-  nextBtn.style.display = 'block'; // Forzamos que se muestre
+  
+  // Usamos un pequeño delay para asegurar que el DOM se haya actualizado
+  setTimeout(() => {
+    nextBtn.style.display = 'block';
+    // Auto-scroll para que el niño vea el botón en pantallas pequeñas
+    nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
 }
 
 function nextQuestion() {
