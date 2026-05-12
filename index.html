@@ -304,20 +304,18 @@ function showQ() {
   document.getElementById('q-label').textContent = 'Pregunta ' + (cur + 1) + ' de ' + TOTAL;
   document.getElementById('progress-fill').style.width = ((cur / TOTAL) * 100) + '%';
   document.getElementById('feedback').innerHTML = '';
-  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none'; // Se oculta al empezar nueva pregunta
   updateStars();
 
   const area = document.getElementById('options-area');
   if (level === 'easy') {
     const wrongs = [];
     while (wrongs.length < 3) {
-      // Mejora: Evita números negativos y genera opciones más realistas
-      let offset = Math.floor(Math.random() * 10) + 1;
-      let v = Math.random() > 0.5 ? q.ans + offset : q.ans - offset;
+      // Evita negativos: si el resultado es pequeño, solo suma. Si es grande, suma o resta.
+      let offset = Math.floor(Math.random() * 5) + 1;
+      let v = (q.ans > 5 && Math.random() > 0.5) ? q.ans - offset : q.ans + offset;
       
-      if (v > 0 && v !== q.ans && !wrongs.includes(v)) {
-        wrongs.push(v);
-      }
+      if (v > 0 && v !== q.ans && !wrongs.includes(v)) wrongs.push(v);
     }
     const opts = shuffle([q.ans].concat(wrongs));
     let html = '<div class="options-grid">';
@@ -327,7 +325,7 @@ function showQ() {
     html += '</div>';
     area.innerHTML = html;
   } else {
-    // Mejora: Se añade inputmode para móviles y se asegura que esté limpio y habilitado
+    // Mejora: Limpieza de input y habilitación automática
     area.innerHTML = '<div class="type-row">'
       + '<input class="type-input" type="number" id="ans-input" inputmode="numeric" placeholder="?" onkeydown="if(event.key===\'Enter\')checkTyped(' + q.ans + ')">'
       + '<button class="confirm-btn" id="confirm-btn" onclick="checkTyped(' + q.ans + ')">✓</button>'
@@ -335,28 +333,29 @@ function showQ() {
     setTimeout(function() { 
       var el = document.getElementById('ans-input'); 
       if (el) {
-        el.value = ""; // Limpiar el input para la nueva pregunta
+        el.value = ""; // Asegura que esté vacío
         el.focus(); 
       }
     }, 60);
   }
 }
 
+// 2. Corrección del flujo en el modo fácil
 function checkOpt(val, ans, btn) {
-  // Deshabilitar todos los botones para que no sigan marcando
+  // Deshabilitamos todos para evitar doble clic
   document.querySelectorAll('.opt-btn').forEach(function(b) { b.disabled = true; });
   
-  btn.classList.add(val === ans ? 'correct' : 'wrong');
+  const isCorrect = val === ans;
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
   
-  if (val !== ans) {
-    // Si se equivocó, mostramos cuál era la correcta pintándola de verde
+  if (!isCorrect) {
     document.querySelectorAll('.opt-btn').forEach(function(b) {
       if (+b.textContent === ans) b.classList.add('correct');
     });
   }
   
-  // Llamamos a handle para procesar puntos y mostrar el botón "Siguiente"
-  handle(val === ans, val === ans ? null : 'La respuesta era ' + ans);
+  // IMPORTANTE: Pasamos el mensaje correcto al handle
+  handle(isCorrect, isCorrect ? null : 'La respuesta era ' + ans);
 }
   
 function checkTyped(ans) {
@@ -378,8 +377,7 @@ function handle(ok, hint) {
     score += pts;
     maxStreak = Math.max(maxStreak, streak);
     var msg = GOOD[Math.floor(Math.random() * GOOD.length)];
-    var extra = streak >= 3 ? '<span style="color:#854F0B;font-size:13px;display:block;margin-top:2px">+racha x' + streak + '! +' + pts + ' pts</span>' : '';
-    document.getElementById('feedback').innerHTML = '<span class="feedback-txt good">' + msg + '</span>' + extra;
+    document.getElementById('feedback').innerHTML = '<span class="feedback-txt good">' + msg + '</span>';
     document.getElementById('streak-area').innerHTML = streak >= 3 ? '<span class="streak-badge">🔥 Racha de ' + streak + '</span>' : '';
   } else {
     streak = 0;
@@ -388,13 +386,15 @@ function handle(ok, hint) {
     document.getElementById('feedback').innerHTML = '<span class="feedback-txt bad">' + msg2 + '</span>' + h;
     document.getElementById('streak-area').innerHTML = '';
   }
+  
   document.getElementById('score-num').textContent = score;
   document.getElementById('correct-num').textContent = correct;
   updateStars();
 
+  // Esta línea es la que soluciona tu problema principal:
   var nextBtn = document.getElementById('next-btn');
   nextBtn.textContent = (cur + 1 >= TOTAL) ? 'Ver resultados →' : 'Siguiente →';
-  nextBtn.style.setProperty('display', 'block', 'important');
+  nextBtn.style.display = 'block'; // Forzamos que se muestre
 }
 
 function nextQuestion() {
