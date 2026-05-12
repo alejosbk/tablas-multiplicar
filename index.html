@@ -153,10 +153,9 @@
       width: 100%; padding: 15px; border-radius: var(--radius); border: none;
       background: var(--pink); color: white; font-family: 'Nunito', sans-serif;
       font-size: 17px; font-weight: 800; cursor: pointer; transition: all 0.15s;
-      margin-top: 0.25rem; display: none;
+      margin-top: 0.25rem;
     }
     .next-btn:hover { background: var(--pink-dark); transform: translateY(-1px); }
-    .next-btn.visible { display: block; }
 
     .end-wrap { text-align: center; padding: 1rem 0; }
     .end-stars { font-size: 40px; letter-spacing: 6px; margin-bottom: 1rem; }
@@ -236,7 +235,7 @@
       <div id="options-area"></div>
     </div>
     <div class="feedback-area" id="feedback"></div>
-    <button class="next-btn" id="next-btn" onclick="nextQuestion()">Siguiente →</button>
+    <button class="next-btn" id="next-btn" style="display:none" onclick="nextQuestion()">Siguiente →</button>
   </div>
 
   <!-- End -->
@@ -305,7 +304,7 @@ function showQ() {
   document.getElementById('q-label').textContent = 'Pregunta ' + (cur + 1) + ' de ' + TOTAL;
   document.getElementById('progress-fill').style.width = ((cur / TOTAL) * 100) + '%';
   document.getElementById('feedback').innerHTML = '';
-  document.getElementById('next-btn').classList.remove('visible');
+  document.getElementById('next-btn').style.display = 'none';
   updateStars();
 
   const area = document.getElementById('options-area');
@@ -377,12 +376,13 @@ function handle(ok, hint) {
 
   var nextBtn = document.getElementById('next-btn');
   nextBtn.textContent = (cur + 1 >= TOTAL) ? 'Ver resultados →' : 'Siguiente →';
-  nextBtn.classList.add('visible');
+  nextBtn.style.display = 'block';
 }
 
 function nextQuestion() {
+  document.getElementById('next-btn').style.display = 'none';
   cur++;
-  showQ();
+  setTimeout(showQ, 50);
 }
 
 function updateStars() {
