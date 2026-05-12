@@ -4,422 +4,149 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#D4537E" />
-  <meta name="description" content="Aprende las tablas de multiplicar de forma divertida" />
-  <link rel="manifest" href="manifest.json" />
   <title>¡Aprende las Tablas!</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --pink:        #D4537E;
-      --pink-dark:   #993556;
-      --pink-light:  #FBEAF0;
-      --pink-border: rgba(212,83,126,0.2);
-      --hot:         #F4C0D1;
-      --green:       #3B6D11;
-      --green-light: #EAF3DE;
-      --red:         #A32D2D;
-      --red-light:   #FCEBEB;
-      --amber:       #854F0B;
-      --amber-light: #FAEEDA;
-      --text:        #3a1528;
-      --text-muted:  #9e6080;
-      --bg:          #fff0f5;
-      --card:        #ffffff;
-      --radius:      16px;
-      --radius-sm:   10px;
+      --pink: #D4537E; --pink-dark: #993556; --pink-light: #FBEAF0;
+      --green: #3B6D11; --green-light: #EAF3DE;
+      --red: #A32D2D; --red-light: #FCEBEB;
+      --text: #3a1528; --bg: #fff0f5; --card: #ffffff;
     }
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 1rem;
-    }
-    .app { width: 100%; max-width: 480px; padding-bottom: 2rem; }
-
-    .app-header { text-align: center; padding: 1.5rem 0 1rem; }
-    .app-logo { font-size: 48px; margin-bottom: 4px; }
-    .app-title { font-size: 26px; font-weight: 800; color: var(--pink); }
-    .app-sub { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
-
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1px solid var(--pink-border);
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 16px rgba(212,83,126,0.08);
-    }
-
-    .section-label { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-
-    .table-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-    .table-btn {
-      aspect-ratio: 1; border-radius: var(--radius-sm);
-      border: 1.5px solid var(--pink-border);
-      background: var(--bg); color: var(--text);
-      font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 700;
-      cursor: pointer; transition: all 0.15s;
-    }
-    .table-btn:hover { border-color: var(--pink); background: var(--pink-light); color: var(--pink); }
-    .table-btn.active { background: var(--pink); color: white; border-color: var(--pink); transform: scale(1.06); }
-
-    .level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .level-btn {
-      padding: 12px 8px; border-radius: var(--radius-sm);
-      border: 1.5px solid var(--pink-border);
-      background: var(--bg); font-family: 'Nunito', sans-serif;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-      text-align: center; transition: all 0.15s; color: var(--text);
-    }
-    .level-btn .level-icon { font-size: 22px; display: block; margin-bottom: 2px; }
-    .level-btn .level-tag { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-    .level-btn:hover { border-color: var(--pink); background: var(--pink-light); }
-    .level-btn.active { border-color: var(--pink); background: var(--pink-light); color: var(--pink-dark); }
-
-    .start-btn {
-      width: 100%; padding: 16px; border-radius: var(--radius); border: none;
-      background: var(--pink); color: white; font-family: 'Nunito', sans-serif;
-      font-size: 18px; font-weight: 800; cursor: pointer; transition: all 0.15s;
-    }
-    .start-btn:hover:not(:disabled) { background: var(--pink-dark); transform: translateY(-1px); }
-    .start-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
-
-    .score-row { display: flex; justify-content: space-around; margin-bottom: 1rem; }
-    .score-box { text-align: center; }
-    .score-val { font-size: 22px; font-weight: 800; color: var(--pink); }
-    .score-lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-
-    .stars-row { text-align: center; font-size: 26px; letter-spacing: 4px; margin-bottom: 0.75rem; }
-
-    .progress-wrap { background: var(--hot); border-radius: 99px; height: 8px; margin-bottom: 1.25rem; overflow: hidden; }
-    .progress-fill { height: 100%; border-radius: 99px; background: var(--pink); transition: width 0.4s ease; }
-
-    .question-card {
-      background: var(--pink);
-      border-radius: var(--radius); padding: 2rem 1rem;
-      text-align: center; margin-bottom: 1rem;
-    }
-    .question-num { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.65); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
-    .question-text { font-size: 42px; font-weight: 800; color: white; letter-spacing: 2px; }
-
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 1rem; }
+    .app { width: 100%; max-width: 480px; }
+    .header { text-align: center; padding: 1rem 0; }
+    .card { background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .table-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
+    .table-btn { aspect-ratio: 1; border-radius: 10px; border: 1.5px solid #eee; background: white; font-size: 18px; font-weight: 700; cursor: pointer; }
+    .table-btn.active { background: var(--pink); color: white; border-color: var(--pink); }
+    .start-btn { width: 100%; padding: 16px; border-radius: 16px; border: none; background: var(--pink); color: white; font-size: 18px; font-weight: 800; cursor: pointer; }
+    .start-btn:disabled { opacity: 0.5; }
+    .question-card { background: var(--pink); color: white; border-radius: 16px; padding: 2rem 1rem; text-align: center; margin-bottom: 1rem; }
+    .question-text { font-size: 42px; font-weight: 800; }
     .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .opt-btn {
-      padding: 16px; border-radius: var(--radius-sm);
-      border: 1.5px solid var(--pink-border);
-      background: var(--card); font-family: 'Nunito', sans-serif;
-      font-size: 22px; font-weight: 800; cursor: pointer;
-      transition: all 0.15s; color: var(--text);
-    }
-    .opt-btn:hover:not(:disabled) { border-color: var(--pink); background: var(--pink-light); color: var(--pink); }
+    .opt-btn { padding: 16px; border-radius: 12px; border: 1.5px solid #eee; background: white; font-size: 22px; font-weight: 800; cursor: pointer; }
     .opt-btn.correct { background: var(--green-light); border-color: var(--green); color: var(--green); }
-    .opt-btn.wrong   { background: var(--red-light); border-color: var(--red); color: var(--red); }
-    .opt-btn:disabled { cursor: default; }
-
-    .type-row { display: flex; gap: 8px; }
-    .type-input {
-      flex: 1; padding: 14px; border-radius: var(--radius-sm);
-      border: 1.5px solid var(--pink-border);
-      font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 700;
-      text-align: center; background: var(--card); color: var(--text); outline: none;
-    }
-    .type-input:focus { border-color: var(--pink); }
-    .type-input.correct { border-color: var(--green); background: var(--green-light); color: var(--green); }
-    .type-input.wrong   { border-color: var(--red); background: var(--red-light); color: var(--red); }
-    .confirm-btn {
-      padding: 14px 20px; border-radius: var(--radius-sm); border: none;
-      background: var(--pink); color: white; font-family: 'Nunito', sans-serif;
-      font-size: 20px; font-weight: 800; cursor: pointer; transition: background 0.15s;
-    }
-    .confirm-btn:hover:not(:disabled) { background: var(--pink-dark); }
-    .confirm-btn:disabled { opacity: 0.5; cursor: default; }
-
-    .feedback-area { text-align: center; margin: 0.75rem 0; min-height: 56px; }
-    .feedback-txt { font-size: 18px; font-weight: 700; display: block; }
-    .feedback-txt.good { color: var(--green); }
-    .feedback-txt.bad  { color: var(--red); }
-    .feedback-hint { font-size: 13px; color: var(--text-muted); margin-top: 3px; display: block; }
-    .streak-badge {
-      display: inline-block; background: var(--amber-light); color: var(--amber);
-      font-size: 13px; font-weight: 700; padding: 4px 14px;
-      border-radius: 99px; margin-top: 6px;
-    }
-
-    .next-btn {
-      width: 100%; padding: 15px; border-radius: var(--radius); border: none;
-      background: var(--pink); color: white; font-family: 'Nunito', sans-serif;
-      font-size: 17px; font-weight: 800; cursor: pointer; transition: all 0.15s;
-      margin-top: 0.25rem;
-    }
-    .next-btn:hover { background: var(--pink-dark); transform: translateY(-1px); }
-
-    .end-wrap { text-align: center; padding: 1rem 0; }
-    .end-stars { font-size: 40px; letter-spacing: 6px; margin-bottom: 1rem; }
-    .end-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
-    .end-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 1.5rem; }
-    .stats-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .stat-box { background: var(--bg); border-radius: var(--radius-sm); padding: 12px 20px; text-align: center; min-width: 80px; }
-    .stat-val { font-size: 24px; font-weight: 800; color: var(--pink); }
-    .stat-lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-    .end-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-    .btn-primary {
-      padding: 13px 28px; border-radius: var(--radius-sm); border: none;
-      background: var(--pink); color: white; font-family: 'Nunito', sans-serif;
-      font-size: 16px; font-weight: 800; cursor: pointer; transition: background 0.15s;
-    }
-    .btn-primary:hover { background: var(--pink-dark); }
-    .btn-secondary {
-      padding: 13px 28px; border-radius: var(--radius-sm);
-      border: 1.5px solid var(--pink-border); background: var(--card);
-      color: var(--text); font-family: 'Nunito', sans-serif;
-      font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.15s;
-    }
-    .btn-secondary:hover { border-color: var(--pink); color: var(--pink); }
-
+    .opt-btn.wrong { background: var(--red-light); border-color: var(--red); color: var(--red); }
+    .next-btn { width: 100%; padding: 15px; border-radius: 16px; border: none; background: var(--pink); color: white; font-size: 18px; font-weight: 800; cursor: pointer; display: none; margin-top: 10px; }
     .hidden { display: none !important; }
+    .feedback { text-align: center; margin: 10px 0; font-weight: 700; height: 30px; }
+    .stars { font-size: 24px; text-align: center; color: #FFB800; margin-bottom: 10px; }
   </style>
 </head>
 <body>
-<div class="app">
 
-  <!-- Setup -->
+<div class="app">
   <div id="setup-screen">
-    <div class="app-header">
-      <div class="app-logo">🧮</div>
-      <div class="app-title">¡Aprende las Tablas!</div>
-      <div class="app-sub">Practica y conviértete en campeón 🌸</div>
-    </div>
+    <div class="header"><h1>🧮 Aprende las Tablas</h1></div>
     <div class="card">
-      <div class="section-label">¿Qué tabla quieres practicar?</div>
+      <p>Selecciona una tabla:</p>
       <div class="table-grid" id="table-btns"></div>
     </div>
-    <div class="card">
-      <div class="section-label">Nivel de dificultad</div>
-      <div class="level-grid">
-        <button class="level-btn active" id="lvl-easy" onclick="setLevel('easy')">
-          <span class="level-icon">🟢</span>
-          Fácil
-          <span class="level-tag">Elige la respuesta</span>
-        </button>
-        <button class="level-btn" id="lvl-hard" onclick="setLevel('hard')">
-          <span class="level-icon">🔴</span>
-          Difícil
-          <span class="level-tag">Escribe la respuesta</span>
-        </button>
-      </div>
-    </div>
-    <button class="start-btn" id="start-btn" onclick="startGame()" disabled>Empezar →</button>
+    <button class="start-btn" id="start-btn" onclick="startGame()" disabled>¡Empezar!</button>
   </div>
 
-  <!-- Game -->
   <div id="game-screen" class="hidden">
-    <div class="app-header" style="padding-top:0.5rem;">
-      <div class="stars-row" id="stars-display">☆☆☆☆☆</div>
-      <div class="score-row">
-        <div class="score-box"><div class="score-val" id="score-num">0</div><div class="score-lbl">puntos</div></div>
-        <div class="score-box"><div class="score-val" id="correct-num">0</div><div class="score-lbl">correctas</div></div>
-        <div class="score-box"><div class="score-val" id="q-num">1/10</div><div class="score-lbl">pregunta</div></div>
-      </div>
-      <div id="streak-area" style="text-align:center;margin-top:6px;min-height:28px;"></div>
-    </div>
-    <div class="progress-wrap"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="stars" id="stars">☆☆☆☆☆</div>
     <div class="question-card">
-      <div class="question-num" id="q-label">Pregunta 1 de 10</div>
-      <div class="question-text" id="question-text">? × ? = ?</div>
+      <p id="q-count">Pregunta 1 de 10</p>
+      <div class="question-text" id="q-text">? × ?</div>
     </div>
-    <div class="card" style="padding:1rem;">
-      <div id="options-area"></div>
-    </div>
-    <div class="feedback-area" id="feedback"></div>
-    <button class="next-btn" id="next-btn" style="display:none" onclick="nextQuestion()">Siguiente →</button>
+    <div id="options-area" class="options-grid"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">Siguiente →</button>
   </div>
 
-  <!-- End -->
   <div id="end-screen" class="hidden">
-    <div class="app-header">
-      <div class="app-logo">🏆</div>
-      <div class="app-title">¡Juego terminado!</div>
-    </div>
-    <div class="card">
-      <div class="end-wrap" id="end-content"></div>
+    <div class="card" style="text-align: center;">
+      <h2>🏆 ¡Terminaste!</h2>
+      <p id="final-score" style="font-size: 24px; margin: 1rem 0;"></p>
+      <button class="start-btn" onclick="location.reload()">Jugar de nuevo</button>
     </div>
   </div>
-
 </div>
+
 <script>
-const GOOD = ["¡Excelente! 🎉", "¡Muy bien! ⭐", "¡Correcto! 🙌", "¡Eso es! 🔥", "¡Genial! 💪", "¡Perfecto! ✨", "¡Increíble! 🌟"];
-const BAD = ["¡Casi! Sigue intentando 💙", "¡No te rindas! 💪", "¡La próxima seguro! 🌟", "¡Vas muy bien igual! 🙂", "¡Tú puedes! 😊"];
+  let selectedTable = null, cur = 0, correct = 0;
+  const TOTAL = 10, GOOD = ["¡Genial!", "¡Muy bien!", "¡Eso es!", "¡Perfecto!"], BAD = ["¡Casi!", "¡Tú puedes!", "¡Sigue intentando!"];
+  let questions = [];
 
-let selectedTable = null, level = 'easy';
-let questions = [], cur = 0, score = 0, correct = 0, streak = 0, maxStreak = 0;
-const TOTAL = 10;
-
-// Generar botones de tablas
-const tableBtnsDiv = document.getElementById('table-btns');
-for (let i = 1; i <= 10; i++) {
-  const b = document.createElement('button');
-  b.className = 'table-btn';
-  b.textContent = i;
-  b.onclick = () => selectTable(i);
-  tableBtnsDiv.appendChild(b);
-}
-
-function selectTable(n) {
-  selectedTable = n;
-  document.querySelectorAll('.table-btn').forEach(b => b.classList.toggle('active', +b.textContent === n));
-  document.getElementById('start-btn').disabled = false;
-}
-
-function setLevel(l) {
-  level = l;
-  document.getElementById('lvl-easy').classList.toggle('active', l === 'easy');
-  document.getElementById('lvl-hard').classList.toggle('active', l === 'hard');
-}
-
-function shuffle(a) {
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+  // Crear botones
+  for (let i = 1; i <= 10; i++) {
+    const b = document.createElement('button');
+    b.className = 'table-btn'; b.textContent = i;
+    b.onclick = () => {
+      selectedTable = i;
+      document.querySelectorAll('.table-btn').forEach(btn => btn.classList.toggle('active', +btn.textContent === i));
+      document.getElementById('start-btn').disabled = false;
+    };
+    document.getElementById('table-btns').appendChild(b);
   }
-  return a;
-}
 
-function startGame() {
-  const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-  questions = nums.map(n => ({ a: selectedTable, b: n, ans: selectedTable * n }));
-  cur = 0; score = 0; correct = 0; streak = 0; maxStreak = 0;
-  document.getElementById('setup-screen').classList.add('hidden');
-  document.getElementById('end-screen').classList.add('hidden');
-  document.getElementById('game-screen').classList.remove('hidden');
-  showQ();
-}
+  function startGame() {
+    let nums = [1,2,3,4,5,6,7,8,9,10].sort(() => Math.random() - 0.5);
+    questions = nums.map(n => ({ a: selectedTable, b: n, ans: selectedTable * n }));
+    cur = 0; correct = 0;
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    showQuestion();
+  }
 
-function showQ() {
-  if (cur >= TOTAL) { endGame(); return; }
-  const q = questions[cur];
-  
-  document.getElementById('question-text').textContent = q.a + ' × ' + q.b + ' = ?';
-  document.getElementById('q-num').textContent = (cur + 1) + '/' + TOTAL;
-  document.getElementById('q-label').textContent = 'Pregunta ' + (cur + 1) + ' de ' + TOTAL;
-  document.getElementById('progress-fill').style.width = ((cur / TOTAL) * 100) + '%';
-  document.getElementById('feedback').innerHTML = '';
-  document.getElementById('next-btn').style.display = 'none';
-  updateStars();
+  function showQuestion() {
+    if (cur >= TOTAL) return showEnd();
+    const q = questions[cur];
+    document.getElementById('q-text').textContent = `${q.a} × ${q.b}`;
+    document.getElementById('q-count').textContent = `Pregunta ${cur + 1} de ${TOTAL}`;
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('next-btn').style.display = 'none';
 
-  const area = document.getElementById('options-area');
-  if (level === 'easy') {
-    const wrongs = [];
-    while (wrongs.length < 3) {
-      let offset = Math.floor(Math.random() * 10) + 1;
-      let v = Math.random() > 0.5 ? q.ans + offset : q.ans - offset;
-      if (v > 0 && v !== q.ans && !wrongs.includes(v)) wrongs.push(v);
+    // Generar opciones
+    let opts = [q.ans];
+    while(opts.length < 4) {
+      let r = q.ans + (Math.floor(Math.random() * 10) - 5);
+      if (r > 0 && !opts.includes(r)) opts.push(r);
     }
-    const opts = shuffle([q.ans].concat(wrongs));
-    let html = '<div class="options-grid">';
+    opts.sort(() => Math.random() - 0.5);
+
+    const area = document.getElementById('options-area');
+    area.innerHTML = '';
     opts.forEach(o => {
-      html += `<button class="opt-btn" onclick="verificar(${o}, ${q.ans}, this)">${o}</button>`;
+      const b = document.createElement('button');
+      b.className = 'opt-btn'; b.textContent = o;
+      b.onclick = () => check(o, q.ans, b);
+      area.appendChild(b);
     });
-    html += '</div>';
-    area.innerHTML = html;
-  } else {
-    area.innerHTML = `
-      <div class="type-row">
-        <input class="type-input" type="number" id="ans-input" inputmode="numeric" placeholder="?" 
-               onkeydown="if(event.key==='Enter') verificar(document.getElementById('ans-input').value, ${q.ans}, this)">
-        <button class="confirm-btn" id="confirm-btn" onclick="verificar(document.getElementById('ans-input').value, ${q.ans}, this)">✓</button>
-      </div>`;
-    setTimeout(() => { const el = document.getElementById('ans-input'); if(el) el.focus(); }, 100);
   }
-}
 
-// ESTA FUNCIÓN MANEJA TODO AHORA PARA EVITAR ERRORES
-function verificar(valEntrada, respuestaCorrecta, elemento) {
-  if (valEntrada === "" || valEntrada === null) return;
-  
-  const valor = parseInt(valEntrada);
-  const esCorrecto = (valor === respuestaCorrecta);
-  
-  // Bloquear interfaz según el modo
-  if (level === 'easy') {
+  function check(val, ans, btn) {
     document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
-    elemento.classList.add(esCorrecto ? 'correct' : 'wrong');
-    if (!esCorrecto) {
-      document.querySelectorAll('.opt-btn').forEach(b => {
-        if (parseInt(b.textContent) === respuestaCorrecta) b.classList.add('correct');
-      });
+    if (val === ans) {
+      correct++;
+      btn.classList.add('correct');
+      document.getElementById('feedback').textContent = GOOD[Math.floor(Math.random()*GOOD.length)];
+    } else {
+      btn.classList.add('wrong');
+      document.getElementById('feedback').textContent = BAD[Math.floor(Math.random()*BAD.length)];
+      document.querySelectorAll('.opt-btn').forEach(b => { if(+b.textContent === ans) b.classList.add('correct'); });
     }
-  } else {
-    const input = document.getElementById('ans-input');
-    const btn = document.getElementById('confirm-btn');
-    if(input) { input.disabled = true; input.classList.add(esCorrecto ? 'correct' : 'wrong'); }
-    if(btn) btn.disabled = true;
+    document.getElementById('next-btn').style.display = 'block';
+    updateStars();
   }
 
-  // Lógica de puntos y racha
-  if (esCorrecto) {
-    streak++; correct++;
-    let pts = streak >= 3 ? 200 : 100;
-    score += pts;
-    maxStreak = Math.max(maxStreak, streak);
-    document.getElementById('feedback').innerHTML = `<span class="feedback-txt good">${GOOD[Math.floor(Math.random()*GOOD.length)]}</span>`;
-    if (streak >= 3) document.getElementById('streak-area').innerHTML = `<span class="streak-badge">🔥 Racha de ${streak}</span>`;
-  } else {
-    streak = 0;
-    document.getElementById('feedback').innerHTML = `<span class="feedback-txt bad">${BAD[Math.floor(Math.random()*BAD.length)]}</span><span class="feedback-hint">La respuesta era ${respuestaCorrecta}</span>`;
-    document.getElementById('streak-area').innerHTML = '';
+  function nextQuestion() { cur++; showQuestion(); }
+
+  function updateStars() {
+    let s = Math.round((correct / (cur + 1)) * 5);
+    document.getElementById('stars').textContent = '★'.repeat(s) + '☆'.repeat(5-s);
   }
 
-  document.getElementById('score-num').textContent = score;
-  document.getElementById('correct-num').textContent = correct;
-  updateStars();
-
-  // MOSTRAR BOTÓN SIGUIENTE - Blindado
-  const nxt = document.getElementById('next-btn');
-  nxt.textContent = (cur + 1 >= TOTAL) ? 'Ver resultados →' : 'Siguiente →';
-  nxt.style.display = 'block';
-}
-
-function nextQuestion() {
-  cur++;
-  showQ();
-}
-
-function updateStars() {
-  let pct = cur === 0 ? 0 : correct / cur;
-  let s = Math.round(pct * 5);
-  document.getElementById('stars-display').textContent = '★'.repeat(s) + '☆'.repeat(5 - s);
-}
-
-function endGame() {
-  document.getElementById('game-screen').classList.add('hidden');
-  document.getElementById('end-screen').classList.remove('hidden');
-  let pct = correct / TOTAL;
-  let s = Math.round(pct * 5);
-  let starsStr = '★'.repeat(s) + '☆'.repeat(5 - s);
-  let msg = pct === 1 ? '¡Perfecto! 🏆' : (pct >= 0.7 ? '¡Muy bien! 🌟' : '¡Sigue así! 💪');
-
-  document.getElementById('end-content').innerHTML = `
-    <div class="end-stars">${starsStr}</div>
-    <div class="end-title">${msg}</div>
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-val">${correct}/${TOTAL}</div><div class="stat-lbl">correctas</div></div>
-      <div class="stat-box"><div class="stat-val">${score}</div><div class="stat-lbl">puntos</div></div>
-    </div>
-    <div class="end-btns">
-      <button class="btn-primary" onclick="startGame()">Repetir</button>
-      <button class="btn-secondary" onclick="goSetup()">Otra tabla</button>
-    </div>`;
-}
-
-function goSetup() {
-  document.getElementById('end-screen').classList.add('hidden');
-  document.getElementById('setup-screen').classList.remove('hidden');
-}
-
+  function showEnd() {
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('end-screen').classList.remove('hidden');
+    document.getElementById('final-score').textContent = `Lograste ${correct} de ${TOTAL} correctas`;
+  }
 </script>
+
 </body>
 </html>
